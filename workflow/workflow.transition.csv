@@ -1,4 +1,4 @@
-id,wkf_id,act_from,act_to,signal,condition
+id,wkf_id:id,act_from:id,act_to:id,signal,condition
 trans_draft_confirm,order_transfert_wkf,act_draft,act_confirm,button_confirm,True
 trans_confirm_done,order_transfert_wkf,act_confirm,act_done,,True
 trans_done_cancel,order_transfert_wkf,act_done,act_cancel,button_cancel,True
