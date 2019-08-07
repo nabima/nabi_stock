@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE xml>
+<openerp>
+  <data>
+    <record id="seq_ordre_transfert" model="ir.sequence">
+        <field name="name">Ordre de transfert</field>
+        <field name="code">ordre.transfert</field>
+        <field name="prefix">OT/</field>
+        <field name="padding">5</field>
+    </record>
+  </data>
+
+
+</openerp>
