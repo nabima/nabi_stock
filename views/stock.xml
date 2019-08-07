@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+    <data>
+        <!-- Ordre de transfert -->
+        <record model="ir.ui.view" id="ordre_transfert_tree">
+            <field name="name">ordre.transfert.tree</field>
+            <field name="model">ordre.transfert</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree colors="blue:state=='draft'">
+        			<field name="name"/>
+					<field name="date"/>
+					<field name="origin"/>
+					<field name="source_id"/>
+					<field name="destination_id"/>
+					<field name="state"/>
+				</tree>
+			</field>
+		</record>
+		
+		<record model="ir.ui.view" id="ordre_transfert_form">
+				<field name="name">ordre.transfert.form</field>
+				<field name="model">ordre.transfert</field>
+				<field name="type">form</field>
+				<field name="arch" type="xml">	
+					<form>
+						<header>
+							<button name="button_confirm" string="Confirmer" states="draft"/>
+							<button name="button_cancel" string="Annuler" states="draft"/>
+							<button name="button_end" string="Terminer" states="confirm"/>
+							<a href="javascript:window.print()" class="oe_highlight button" states="confirm">Imprimer</a>
+							<field name="state" widget="statusbar" />
+						</header>
+						<sheet>
+							<div class="oe_title oe_left">
+								<label for="name"/>
+								<h2>
+									<field name="name"/>
+								</h2>
+							</div>
+							<group col="4">
+								<field name="date"/>
+								<field name="origin"/>
+								<field name="source_id" context="{'uid':1}" />
+								<field name="destination_id"/>
+								<field name="location_id" domain="[('warehouse_id','=',source_id),('usage','=','internal')]"/>
+								<field name="location_dest_id" domain="[('warehouse_id','=',destination_id),('usage','=','internal')]"/>
+								<field name="create_uid" string="Créer par"/>
+							</group>
+							<notebook>
+								<page string="lignes">
+									<field name="lines">
+										<tree editable="1">
+											<field name="product_id"/>
+											<field name="product_qty"/>
+											<field name="stock"/>
+											<field name="picking_out_id"/>
+											<field name="picking_in_id"/>
+											<button type="action" name="876" string="Consulter les bons" context="{'picking_ids':[picking_out_id,picking_in_id]}"/>
+										</tree>
+									</field>
+								</page>
+							</notebook>
+						</sheet>
+					</form>
+				</field>
+			</record>
+			
+			<record model="ir.ui.view" id="ordre_transfert_search">
+				<field name="name">ordre.transfert.search</field>
+				<field name="model">ordre.transfert</field>
+				<field name="type">search</field>
+				<field name="arch" type="xml">	
+						<search>
+							<field string="Transfert" name="name" filter_domain="['|','|',('name','ilike',self),('lines.picking_out_id.name','ilike',self),('lines.picking_in_id.name','ilike',self)]"/>
+							<field name="product_id" />
+						</search>
+				</field>
+			</record>
+			
+			<record model="ir.actions.act_window" id="ordre_transfert_action">
+					<field name="name">Ordre de transfert</field>
+					<field name="res_model">ordre.transfert</field>
+					<field name="view_type">form</field>
+					<field name="view_mode">tree,form</field>
+					<field name="help" type="html">
+						<p class="oe_view_nocontent_create">Create first transfert</p>
+					</field>
+        	</record>
+			
+			<menuitem id="ordre_trasfert_menu"
+                  name="Ordre de transfert"
+                  parent="stock.menu_stock_inventory_control"
+                  action="ordre_transfert_action"/>
+			
+		</data>
+</openerp>
