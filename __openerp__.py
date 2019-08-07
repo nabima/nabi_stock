@@ -9,7 +9,9 @@
     'author': 'N.A.B.I sarl',
     'depends': ['stock'],
     'data': [ 
-           'views/stock.xml',
+        'views/stock.xml',
+        'data/stock_sequence.xml',
+        'data/stock.location.csv',
     ],
     'installable': True,
     'auto_install': False,
