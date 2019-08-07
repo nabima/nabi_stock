@@ -8,7 +8,9 @@
     """,
     'author': 'N.A.B.I sarl',
     'depends': ['stock'],
-    'data': [    ],
+    'data': [ 
+           'views/stock.xml',
+    ],
     'installable': True,
     'auto_install': False,
 }
