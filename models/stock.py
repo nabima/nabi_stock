@@ -42,7 +42,7 @@ class ordre_transfert(osv.osv):
     
     
     _columns = {
-        'name':             fields.char('Demande No:',default='/'),
+        'name':             fields.char('Demande No:',default='/', copy=False),
         'state':            fields.selection([('draft','Nouveau'),('confirm',u'Confirmé'),('done',u'Terminée'),('cancel',u'Annulée')],string=u'Etat',default="draft"),
         'date':             fields.date('Date'), 
         'date_min':         fields.date(u'Date souhaité'), 
