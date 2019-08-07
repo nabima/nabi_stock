@@ -5,44 +5,7 @@ from openerp.exceptions import  Warning
 from openerp.models import NewId
 from openerp import tools
 from openerp import api, models
-class demande_appro_line(osv.osv):
-    _name = 'demande.appro.line'
-    """
-    Lignes Demande d'approvisionnement destinée au commerciaux
-    
-    """
-    _columns = {
-        'date':             fields.date('Date'), 
-        'destination_id':   fields.many2one('stock.warehouse',u'Dépôt destination'),
-        'type':             fields.selection([('transfert','Transfert'),('achat','Achat'),('importation','Importation'),('new','Nouveau article')],string=u'Type d''appro.'),
-        'origin':           fields.selection([('sale','Bon de commande'),('stock','Stock'),('sample','Echantillon'),('showroom','Showroom')],string=u'Origine de la demande'),
-        'priority':         fields.selection([(0,'Urgente'),(1,'haute'),(2,'Normale'),(3,'basse')],string=u'Priorité'),
-        'source_id':        fields.many2one('stock.warehouse',u'Dépôt source'),
-        'sale_order':       fields.many2one('sale.order','bon de commande'),
-        'product_id':       fields.many2one('product.product','Article'),
-        'parent':           fields.many2one('demande.appro','Parent')  ,      
-        'state':            fields.selection([('draft','Nouveau'),('confirm',u'Confirmé'),('done',u'Terminée'),('cancel',u'Annulée')],string=u'Etat'),
-        'product_qty':      fields.float(u'Quantité'),
-    }
-class demande_appro(osv.osv):
-    _name = 'demande.appro'
-    """ 
-    Demande d'approvisionnement destinée au commerciaux
-    
-    """
-    _columns = {
-        'name':             fields.char('Demande No:', default='/'),
-        'lines':            fields.one2many('demande.appro.line','parent','Lignes'),
-        'state':            fields.selection([('draft','Nouveau'),('confirm',u'Confirmé'),('done',u'Terminée'),('cancel',u'Annulée')],string=u'Etat'),
-    }    
-    
-    def create(self, cr, uid, vals, context=None):
-        if context is None:
-            context = {}
-        if vals.get('name', '/') == '/':
-            vals['name'] = self.pool.get('ir.sequence').get(cr, 1, 'demande.appro', context=context) or '/'
-        new_id = super(demande_appro, self).create(cr, uid, vals, context=context)
-        return new_id
+
         
 class ordre_transfert_line(osv.osv):
     _name = 'ordre.transfert.line'
@@ -201,7 +164,7 @@ class ordre_transfert(osv.osv):
                 if not emp_dest : 
                     raise Warning(u"Erreur de paramètrage !",u"Il faut paramétrer l'emplacement principal dans l'entrepôt  (%s) !" % o.destination_id.name)
             
-            emp_mer  = 491
+            emp_mer  = self.pool['ir.model.data'].xmlid_to_object(cr, uid, "stock.emp_marchandise_en_route", raise_if_not_found=True).id
             
             
             
@@ -274,123 +237,5 @@ class stock_warehouse(osv.osv):
 
     }
     
-class stock_picking(osv.osv):
-    _inherit = "stock.picking"
 
-    def action_confirm(self,cr,uid,ids,context=None):
 
-        todo = []
-        todo_force_assign = []
-        
-        for picking in self.browse(cr, uid, ids, context=context):
-            print "################# %s" % picking.location_id.usage
-            if picking.location_id.usage in ('supplier', 'inventory', 'production'):
-                todo_force_assign.append(picking.id)
-            for r in picking.move_lines:
-                if r.state == 'draft':
-                    todo.append(r.id)
-        if len(todo):
-            self.pool.get('stock.move').action_confirm(cr, uid, todo, context=context)
-
-        if todo_force_assign:
-            self.force_assign(cr, uid, todo_force_assign, context=context)
-        return True
-    
-#TODO: Etat de rupture avec button action
-#TODO: Etat de
-
-class purchase_stats_historique(osv.osv):
-    _name="purchase.stats.historique"
-    _columns = {
-    
-        'partner_id':   fields.many2one('res.partner','Fournisseur'),
-        'ref':          fields.related('partner_id','ref',type="char",string="code"),
-        'currency_id':  fields.related('partner_id','currency_id',type="char",string="Devise"),   
-        'year':         fields.integer(u'Année'),
-        'month':         fields.integer(u'Mois'),
-        'amount':       fields.float(u"Chiffre d'affaire"),
-        'taux':         fields.float(u"%Evolution"),
-    }
-
-class purchase_stats_cumul(osv.osv):
-    _name="purchase.stats.cumul"
-    _auto = False
-    _columns = {
-        'id':           fields.integer('id'),
-        'partner_id':   fields.many2one('res.partner','Fournisseur'),
-        'ref':          fields.related('partner_id','ref',type="char",string="code"),
-        'currency_id':  fields.related('partner_id','currency_id',type="char",string="Devise"),   
-        'year':         fields.integer(u'Année'),
-        'month':        fields.integer(u'Mois'),     
-        'amount':       fields.float(u"Chiffre d'affaire"),
-          
-    }
-    
-    
-    def init(self, cr):
-        tools.sql.drop_view_if_exists(cr, 'purchase_stats_cumul')
-        cr.execute("""
-            CREATE OR REPLACE VIEW purchase_stats_cumul AS (
-                    select 
-                        row_number() OVER () as id,
-                        rp.id as partner_id,
-                        rp.ref,
-                        rp.currency_id,
-                        sum(po.amount_total) amount,
-                        extract(year from date_order) as year, 
-                        extract(month from date_order) as month
-                    from purchase_order po, res_partner rp
-                    where rp.id = po.partner_id
-                    group by rp.id, rp.ref,rp.currency_id,extract(year from date_order) , extract(month from date_order)
-                    
-                    union
-                    select id,partner_id,null,null,amount,year, month
-                    from purchase_stats_historique
-                )
-                """)
-
-class purchase_stats(osv.osv):
-    _name="purchase.stats"
-    _auto = False
-    _columns = {
-        'id':           fields.integer('id'),
-        'partner_id':   fields.many2one('res.partner','Fournisseur'),
-        'ref':          fields.related('partner_id','ref',type="char",string="code"),
-        'currency_id':  fields.related('partner_id','currency_id',relation="res.currency",type="many2one",string="Devise"),   
-        'n_4':       fields.float(u"n-4"),
-        'n_3':       fields.float(u"n-3"),
-        'n_2':       fields.float(u"n-2"),
-        'n_1':       fields.float(u"n-1"),
-        'n':         fields.float(u"n"),
-        'p_3':       fields.float(u"p-3"),
-        'p_2':       fields.float(u"p-2"),
-        'p_1':       fields.float(u"p-1"),
-        'p':         fields.float(u"p"),
-    }
-    
-    def init(self, cr):
-        tools.sql.drop_view_if_exists(cr, 'purchase_stats')
-        cr.execute("""CREATE OR REPLACE VIEW purchase_stats AS (
-                   with a as (select partner_id, year, sum(amount) as amount , 
-                                    nth_value(sum(amount),5) over (partition by partner_id order by year desc) as n_4,
-                                    nth_value(sum(amount),4) over (partition by partner_id order by year desc) as n_3,
-                                    nth_value(sum(amount),3) over (partition by partner_id order by year desc) as n_2,
-                                    nth_value(sum(amount),2) over (partition by partner_id order by year desc) as n_1,
-                                    nth_value(sum(amount),1) over (partition by partner_id order by year desc) as n
-                                from purchase_stats_historique
-                                group by partner_id,year)
-                    select 
-                        row_number() over() as id,
-                        partner_id, null as ref,null as currency_id,
-                        max(n_4) as n_4, 
-                        max(n_3) as n_3, 
-                        max(n_2) as n_2, 
-                        max(n_1) as n_1, 
-                        max(n) as n,
-                        100* max(n_3)/ nullif(max(n_4) ,0) as p_3, 
-                        100* max(n_2)/ nullif(max(n_3) ,0) as p_2, 
-                        100* max(n_1)/ nullif(max(n_2) ,0) as p_1, 
-                        100* max(n)  / nullif(max(n_1) ,0) as p
-                    from   a
-                    group by partner_id        )""")
-                            
