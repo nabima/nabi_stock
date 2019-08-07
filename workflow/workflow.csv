@@ -1,2 +1,2 @@
 id,name,osv,on_create
-stock.order_transfert_wkf,ordre_transfert,True
+order_transfert_wkf, order.transfert.wkf, ordre.transfert, True
