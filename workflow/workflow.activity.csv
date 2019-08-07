@@ -1,4 +1,4 @@
-id,wkf_id,name,flow_start, flow_end, kind, action
+id,wkf_id,name,flow_start, flow_stop, kind, action
 act_draft,stock.order_transfert_wkf, draft, True, False, dummy,
 act_cancel,stock.order_transfert_wkf, cancel, False, False, function,write({'state':'cancel'})
 act_confirm,stock.order_transfert_wkf, confirm, False, False, function,order_confirm()
