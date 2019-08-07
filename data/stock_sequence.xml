@@ -2,6 +2,11 @@
 <!DOCTYPE xml>
 <openerp>
   <data>
+  <record id="seq_type_ordre_transfert" model="ir.sequence.type">
+        <field name="name">Ordre de transfert</field>
+        <field name="code">ordre.transfert</field>
+        
+    </record>
     <record id="seq_ordre_transfert" model="ir.sequence">
         <field name="name">Ordre de transfert</field>
         <field name="code">ordre.transfert</field>
