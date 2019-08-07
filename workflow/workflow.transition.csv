@@ -1,7 +1,7 @@
-id,wkf_id, act_from, act_to, signal, condition
-trans_draft_confirm,stock.order_transfert_wkf, act_draft, act_confirm, button_confirm, True
-trans_confirm_done,stock.order_transfert_wkf, act_confirm, act_done, ,True
-trans_done_cancel, stock.order_transfert_wkf,act_done, act_cancel,button_cancel,True
-trans_done_end, stock.order_transfert_wkf,act_done, act_end, button_end,True
-trans_draft_done, stock.order_transfert_wkf,act_draft, act_done, ,state=='confirm'
-trans_draft_cancel, stock.order_transfert_wkf,act_draft, act_cancel,button_cancel,True
+id,wkf_id,act_from,act_to,signal,condition
+trans_draft_confirm,order_transfert_wkf,act_draft,act_confirm,button_confirm,True
+trans_confirm_done,order_transfert_wkf,act_confirm,act_done,,True
+trans_done_cancel,order_transfert_wkf,act_done,act_cancel,button_cancel,True
+trans_done_end,order_transfert_wkf,act_done,act_end,button_end,True
+trans_draft_done,order_transfert_wkf,act_draft,act_done,,state=='confirm'
+trans_draft_cancel,order_transfert_wkf,act_draft,act_cancel,button_cancel,True
