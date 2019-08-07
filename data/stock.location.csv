@@ -1,2 +1,2 @@
-id;name;usage
-stock.emp_marchandise_en_route;Marchandise en route;transit
+id,name,usage
+stock.emp_marchandise_en_route,Marchandise en route,transit
